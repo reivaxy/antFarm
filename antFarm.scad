@@ -8,12 +8,16 @@ innerY = y - 2*wall;
 innerZ = z - 2*wall;
 coverWall = 1.5;
 coverZ = 1.5;
-tol = 0.5;
+tol = 0.15;
 openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
-all();
+
+join(2);
+//shutter();
+
 /*
+all();
 */
 module all() {
 
