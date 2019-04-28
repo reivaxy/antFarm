@@ -1,5 +1,5 @@
 
-wall = 3;
+wall = 4;
 x = 50;
 y = 50;
 z = 20;
@@ -8,24 +8,24 @@ innerY = y - 2*wall;
 innerZ = z - 2*wall;
 coverWall = 1.5;
 coverZ = 1.5;
-tol = 0.3;
+tol = 0.5;
 openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
 
 
 /*
-simpleModule();
-wetModule();
-translate([0, -y-0.2, 0])
-    simpleModule();
+*/
 
-translate([x/2, y, 0])
-    rotate([0, 0, 180])
+simpleModule();
+translate([0, -y-2*tol, 0])
+  wetModule();
 
 translate([x/2, 0, 0])
     join();
-*/
+
+translate([0, +y/2- wall/2, 0])
+    rotate([0, 0, -90])
         shutter();
 
 
@@ -39,32 +39,37 @@ module wetModule() {
 
 module antModule(type) {
     difference() {
-        cube([x, y, z]);
-        translate([wall, wall, wall])
-            cube([innerX, innerY, z]);
+        union() {
+            difference() {
+                cube([x, y, z]);
+                translate([wall, wall, wall])
+                cube([innerX, innerY, z]);
+                // south opening
+                if (type == 0) {
+                    translate([x / 2, 0, 0])
+                    opening();
+                }
+                // north opening
+                translate([x / 2, innerY + wall, 0])
+                opening();
+                // west opening
+                translate([wall, innerY / 2 + wall / 2, 0])
+                rotate([0, 0, 90])
+                opening();
+                // east opening
+                translate([x, innerY / 2 + wall / 2, 0])
+                rotate([0, 0, 90])
+                opening();
+            }
+            translate([x / 2, y / 2, wall / 2 - tol])
+                scale([0.7, 0.7, z])
+                    import("innerShape.stl");
+        }
         // Window recess
         translate([coverWall, coverWall, z - coverZ])
-            cube([x - 2*coverWall, y - 2*coverWall, z]);
-        // south opening
-        if(type == 0) {
-        translate([x/2, 0, 0])
-            opening();
-        }
-        // north opening
-        translate([x/2, innerY + wall, 0])
-            opening();
-        // west opening
-        translate([wall, innerY/2 + wall/2, 0])
-            rotate([0, 0, 90])
-                opening();
-        // east opening
-        translate([x, innerY/2 + wall/2, 0])
-            rotate([0, 0, 90])
-                opening();
+        cube([x - 2 * coverWall, y - 2 * coverWall, z]);
     }
-    translate([x/2, y/2, wall/2])
-        scale([0.7, 0.7, z])
-           import("innerShape.stl");
+
     // wet module: pierced wall
     if(type == 1) {
         rowCount = 7;
@@ -82,7 +87,7 @@ module antModule(type) {
 
 module holeRow() {
     count = 25;
-    holeDiam = 0.5;
+    holeDiam = 0.7;
     translate([]) {
         for (hole = [1 : count]) {
             translate([hole*(innerX / count), 3, 0]) {
@@ -98,9 +103,9 @@ module opening() {
         translate([-openingWidth/2, wall/2, 0])
             rotate([0, 0, -45])
                 cube([openingSide, openingSide, z]);
-        translate([-20, wall + 0.1, 0])
+        translate([-20, wall + 0.2, 0])
             cube([40, 20, 40]);
-        translate([-20, -20 - 0.1, 0])
+        translate([-20, -20 - 0.2, 0])
             cube([40, 20, 40]);
     }
 
@@ -124,11 +129,12 @@ module shutter() {
         translate([-shutterWidth, coverWall, z - coverZ])
             cube([x - 2*coverWall, y - 2*coverWall, z]);
     }
+    /*
     translate([4, wall, wall + 0.3])
         sphere(d=1, $fn=50);
     translate([-4, wall, wall + 0.3])
         sphere(d=1, $fn=50);
-
+    */
 }
 
 module join() {
@@ -136,13 +142,13 @@ module join() {
     difference() {
         union() {
             shutter();
-            translate([- shutterSide/2, -1, wall])
-                cube([shutterSide, 2, shutterSide]);
-            translate([0, -tol, 0])
+            translate([- shutterSide/2, -1.5, 0])
+                cube([shutterSide, 2, z]);
+            translate([0, -2*tol, 0])
                 mirror([0, 1, 0])
                     shutter();
         }
-        translate([0, wall+1, doorDiam])
+        translate([0, wall+1, doorDiam + 1])
             rotate([90, 0, 0])
                 cylinder(d=doorDiam, h = 3*wall, $fn=100);
     }
