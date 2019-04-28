@@ -12,11 +12,8 @@ tol = 0.5;
 openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
-
-shutter();
-
-/*
 all();
+/*
 */
 module all() {
 
@@ -27,7 +24,7 @@ translate([0, -y-2*tol, 0])
 translate([x/2, 0, 0])
     join(1);
 
-translate([0, +y/2- wall/2, 0])
+translate([0, +y/2, 0])
     rotate([0, 0, -90])
         shutter();
 
@@ -39,6 +36,9 @@ module simpleModule() {
 
 module wetModule() {
     antModule(1);
+}
+module harvestModule() {
+    antModule(2);
 }
 
 module antModule(type) {
@@ -57,25 +57,28 @@ module antModule(type) {
                 translate([x / 2, innerY + wall, 0])
                 opening();
                 // west opening
-                translate([wall, innerY / 2 + wall / 2, 0])
+                translate([wall, innerY / 2 + wall, 0])
                 rotate([0, 0, 90])
                 opening();
                 // east opening
-                translate([x, innerY / 2 + wall / 2, 0])
+                translate([x, innerY / 2 + wall, 0])
                 rotate([0, 0, 90])
                 opening();
             }
-            translate([x / 2, y / 2, wall / 2 - tol])
-                scale([0.7, 0.7, z])
-                    import("innerShape.stl");
+            // No cell in harvest module
+            if(type != 2) {
+                translate([x / 2, y / 2, wall / 2 - tol])
+                    scale([0.7, 0.7, z])
+                        import("innerShape.stl");
+            }
 
             // cover screw pod
-            if(type == 0) {
+            if(type == 1) {
+                translate([wall/2 + 0.5, wall/2 + 7.9, 0])
+                corner(5, z, 5, 2);
+            } else {
                 translate([wall/2, wall/2, 0])
                     corner(6, z, 5, 2);
-            } else {
-                translate([wall/2 + 1, wall/2 + 7.9, 0])
-                corner(4, z, 5, 2);
             }
             // cover screw pod
             translate([x - wall/2, y - wall/2, 0])
@@ -165,7 +168,7 @@ module join(distance) {
                 mirror([0, 1, 0])
                     shutter();
         }
-        #translate([0, -wall - distance - 1, doorDiam + 1])
+        translate([0, -wall - distance - 1, doorDiam + 1])
             rotate([-90, 0, 0])
                 cylinder(d=doorDiam, h = 2 + distance + 2*wall, $fn=100);
     }
