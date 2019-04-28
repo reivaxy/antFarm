@@ -13,21 +13,25 @@ openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
 
+shutter();
 
 /*
+all();
 */
+module all() {
 
 simpleModule();
 translate([0, -y-2*tol, 0])
   wetModule();
 
 translate([x/2, 0, 0])
-    join();
+    join(1);
 
 translate([0, +y/2- wall/2, 0])
     rotate([0, 0, -90])
         shutter();
 
+}
 
 module simpleModule() {
     antModule(0);
@@ -66,8 +70,13 @@ module antModule(type) {
                     import("innerShape.stl");
 
             // cover screw pod
-            translate([wall/2, wall/2, 0])
-                corner(6, z, 5, 2);
+            if(type == 0) {
+                translate([wall/2, wall/2, 0])
+                    corner(6, z, 5, 2);
+            } else {
+                translate([wall/2 + 1, wall/2 + 7.9, 0])
+                corner(4, z, 5, 2);
+            }
             // cover screw pod
             translate([x - wall/2, y - wall/2, 0])
                 rotate([0, 0, 180])
@@ -145,20 +154,20 @@ module shutter() {
     */
 }
 
-module join() {
+module join(distance) {
     doorDiam = 7;
     difference() {
         union() {
             shutter();
-            translate([- shutterSide/2, -1.5, 0])
-                cube([shutterSide, 2, z]);
-            translate([0, -2*tol, 0])
+            translate([- shutterSide/2, -distance-0.1, 0])
+                cube([shutterSide, distance + 0.2, z]);
+            translate([0, -distance, 0])
                 mirror([0, 1, 0])
                     shutter();
         }
-        translate([0, wall+1, doorDiam + 1])
-            rotate([90, 0, 0])
-                cylinder(d=doorDiam, h = 3*wall, $fn=100);
+        #translate([0, -wall - distance - 1, doorDiam + 1])
+            rotate([-90, 0, 0])
+                cylinder(d=doorDiam, h = 2 + distance + 2*wall, $fn=100);
     }
 }
 
