@@ -8,17 +8,23 @@ innerY = y - 2*wall;
 innerZ = z - 2*wall;
 coverWall = 1.5;
 coverZ = 1.5;
-tol = 0.15;
+tol = 0.10;
 openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
 
-join(2);
-//shutter();
-
 /*
+join(1);
+translate([0, 20, 0])
+join(0.5);
+translate([0, 40, 0])
+shutter();
+
 all();
 */
+harvestModule();
+
+
 module all() {
 
 simpleModule();
@@ -52,8 +58,8 @@ module antModule(type) {
                 cube([x, y, z]);
                 translate([wall, wall, wall])
                 cube([innerX, innerY, z]);
-                // south opening
-                if (type == 0) {
+                // south opening, except in wet module
+                if (type != 1) {
                     translate([x / 2, 0, 0])
                     opening();
                 }
@@ -69,25 +75,25 @@ module antModule(type) {
                 rotate([0, 0, 90])
                 opening();
             }
-            // No cell in harvest module
+            // No cell nor screw pods in harvest module
             if(type != 2) {
                 translate([x / 2, y / 2, wall / 2 - tol])
                     scale([0.7, 0.7, z])
                         import("innerShape.stl");
-            }
 
-            // cover screw pod
-            if(type == 1) {
-                translate([wall/2 + 0.5, wall/2 + 7.9, 0])
-                corner(5, z, 5, 2);
-            } else {
-                translate([wall/2, wall/2, 0])
+                // cover screw pod
+                if(type == 1) {
+                    translate([wall/2 + 0.5, wall/2 + 7.9, 0])
+                    corner(5, z, 5, 2);
+                } else {
+                    translate([wall/2, wall/2, 0])
+                        corner(6, z, 5, 2);
+                }
+                // cover screw pod
+                translate([x - wall/2, y - wall/2, 0])
+                    rotate([0, 0, 180])
                     corner(6, z, 5, 2);
-            }
-            // cover screw pod
-            translate([x - wall/2, y - wall/2, 0])
-                rotate([0, 0, 180])
-                corner(6, z, 5, 2);
+                }
         }
         // Window recess
         translate([coverWall, coverWall, z - coverZ])
