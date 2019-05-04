@@ -45,7 +45,7 @@ module openBar() {
     barY = 30;
     innerBarX = barX - 2*wall;
     innerBarY = barY - 2*wall;
-    intDiam = 10;
+    intDiam = 16;
     extDiam = intDiam + 4;
     difference() {
         union() {
@@ -78,7 +78,7 @@ module openBar() {
             }
         }
         translate([(barX - intDiam)/2, barY - wall, wall]) {
-            cube([intDiam, wall + intDiam/2, 4]);
+            cube([intDiam, wall + intDiam/2, 2]);
         }
     }
 
@@ -89,10 +89,12 @@ module openBar() {
     translate([innerBarX + wall + coverWall, wall/2, 0])
         rotate([0, 0, 90])
             corner(6, z-coverZ, 5, 2);
+
+    // channelled surface
     translate([0, innerBarY/2, wall]) {
         difference() {
             union() {
-                translate([barX/2, barY - intDiam/2, 0])
+                translate([barX/2, innerBarY/2+ 2*wall+intDiam/2, 0])
                     cylinder(d=intDiam, h=1, $fn=100);
                 translate([(barX - intDiam)/2, wall + innerBarY/2, 0])
                     cube([intDiam, intDiam/2 + wall, 1]);
@@ -100,7 +102,7 @@ module openBar() {
                     cube([innerBarX, innerBarY/2, 1]);
             }
             for(i = [-2 : 2])
-                translate([barX/2 + 2*i, wall + 1, 1])
+                translate([barX/2 + 3*i, wall + 4, 1])
                     rotate([-90, 0, 0])
                         cylinder(d=1, h = intDiam + innerBarY, $fn=40);
         }
