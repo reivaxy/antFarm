@@ -46,7 +46,7 @@ module openBar() {
     innerBarX = barX - 2*wall;
     innerBarY = barY - 2*wall;
     intDiam = 10;
-    extDiam = intDiam + 3;
+    extDiam = intDiam + 4;
     difference() {
         union() {
             difference() {
@@ -70,6 +70,10 @@ module openBar() {
                     }
                     translate([0, 0, wall])
                         cylinder(d=intDiam, h=z, $fn=100);
+
+                    // Anti capillarity recess
+                    translate([0, 0, wall + 4])
+                        cylinder(d=intDiam + 3, h=z/3, $fn=100);
                 }
             }
         }
@@ -98,7 +102,7 @@ module openBar() {
             for(i = [-2 : 2])
                 translate([barX/2 + 2*i, wall + 1, 1])
                     rotate([-90, 0, 0])
-                        cylinder(d=1, h=intDiam + innerBarY/2, $fn=40);
+                        cylinder(d=1, h = intDiam + innerBarY, $fn=40);
         }
     }
 }
