@@ -12,20 +12,27 @@ coverZ = 1.5;
 openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
-
 /*
+translate([0, -15, 0])
+join(0.5);
+
+closableJoin(0.5);
 join(1);
 translate([0, 20, 0])
-join(0.5);
 translate([0, 40, 0])
 shutter();
 
-harvestModule();
 
 all();
-closableJoin(2);
-*/
 openBar();
+wetModule();
+simpleModule();
+harvestModule();
+handle(8);
+*/
+
+veryWetModule();
+
 
 module all() {
     simpleModule();
@@ -40,6 +47,21 @@ module all() {
             shutter();
 }
 
+module handle(handleDiam) {
+    removedRingDiam = handleDiam/2.5;
+    rodHeight= handleDiam/2 + 1;
+    difference() {
+        cylinder(d = removedRingDiam*2, h=removedRingDiam/2, $fn=80);
+        translate([0, 0, removedRingDiam/2])
+        rotate_extrude(convexity = 10, $fn = 100)
+            translate([removedRingDiam, 0, 0])
+                circle(d = removedRingDiam, $fn = 100);
+    }
+    translate([0, 0, removedRingDiam/2])
+        cylinder(d=removedRingDiam, h=rodHeight, $fn=80);
+    translate([0, 0, removedRingDiam + rodHeight])
+        sphere(d=handleDiam, $fn=100);
+}
 module openBar() {
     barX = 35;
     barY = 30;
@@ -113,6 +135,10 @@ module simpleModule() {
     antModule(0);
 }
 
+module veryWetModule() {
+    antModule(3);
+}
+
 module wetModule() {
     antModule(1);
 }
@@ -121,39 +147,49 @@ module harvestModule() {
 }
 
 module antModule(type) {
+    wetWallOffset = 8.8;
+    veryWetWallOffset = y/2;
     difference() {
         union() {
             difference() {
                 cube([x, y, z]);
                 translate([wall, wall, wall])
                 cube([innerX, innerY, z]);
-                // south opening, except in wet module
-                if (type != 1) {
+                // south opening, except in wet modules
+                if (type != 1 && type != 3) {
                     translate([x / 2, 0, 0])
                         opening();
                 }
                 // north opening
                 translate([x / 2, innerY + wall, 0])
                     opening();
-                // west opening
-                translate([wall, innerY / 2 + wall, 0])
-                    rotate([0, 0, 90])
-                        opening();
-                // east opening
-                translate([x, innerY / 2 + wall, 0])
-                    rotate([0, 0, 90])
-                        opening();
+
+                // west opening except in very wet module
+                if(type != 3) {
+                    translate([wall, innerY / 2 + wall, 0])
+                        rotate([0, 0, 90])
+                            opening();
+                    // east opening
+                    translate([x, innerY / 2 + wall, 0])
+                        rotate([0, 0, 90])
+                            opening();
+                }
             }
-            // No cell nor screw pods in harvest module
+            // No cell nor screw pods in harvest module or very
+            // wet module
             if(type != 2) {
-                translate([x / 2, y / 2, wall / 2 - tol])
-                    scale([0.7, 0.7, z])
-                        import("innerShape.stl");
+                if(type != 3)
+                    translate([x / 2, y / 2, wall / 2 - tol])
+                        scale([0.7, 0.7, z])
+                            import("innerShape.stl");
 
                 // cover screw pod
                 if(type == 1) {
-                    translate([wall/2 + 0.5, wall/2 + 7.9, 0])
-                    corner(5, z-coverZ, 5, 2);
+                    translate([wall/2 + 0.5, wall/2 + wetWallOffset - 0.9, 0])
+                        corner(5, z-coverZ, 5, 2);
+                } else if(type == 3) {
+                    translate([wall/2 + 0.5, wall/2 + veryWetWallOffset - 0.9, 0])
+                        corner(5, z-coverZ, 5, 2);
                 } else {
                     translate([wall/2, wall/2, 0])
                         corner(6, z-coverZ, 5, 2);
@@ -171,17 +207,27 @@ module antModule(type) {
 
     // wet module: pierced wall
     if(type == 1) {
-        rowCount = 7;
-        translate([wall, 8.8, 0]) {
-            difference() {
-                cube([innerX, 2, z - coverZ]);
-                for (row = [1 : rowCount])
-                    translate([0, 0, 2*wall - 1 + (innerZ / rowCount) * row])
-                        holeRow();
-            }
+        translate([wall, wetWallOffset, 0]) {
+            piercedWall();
+        }
+    }
+    // very wet module: pierced wall
+    if(type == 3) {
+        translate([wall, veryWetWallOffset, 0]) {
+            piercedWall();
         }
     }
 
+}
+
+module piercedWall() {
+    rowCount = 7;
+    difference() {
+        cube([innerX, 2, z - coverZ]);
+        for (row = [1 : rowCount])
+        translate([0, 0, 2*wall - 1 + (innerZ / rowCount) * row])
+        holeRow();
+    }
 }
 
 module holeRow() {
@@ -238,22 +284,31 @@ module shutter() {
 
 doorWidth = shutterSide - 2;
 doorThick = 0.5;
-
+doorHeight = z + 2;
+doorDiam = 7;
 module closableJoin(distance) {
     difference() {
         join(distance);
         translate([-doorWidth/2 - tol, -(doorThick + distance)/2, 2]) {
-            cube([doorWidth + 2*tol, doorThick + 2*tol, z]);
+            cube([doorWidth + 3*tol, doorThick + 3*tol, z]);
         }
     }
     // and the door
-    translate([0, 20, 0]) {
+    translate([0, 10, 0]) {
         cube([z+2, doorWidth, doorThick]);
+        cube([2, doorWidth, 1 + doorThick]);
+    }
+    // and the door with opening
+    translate([0, 30, 0]) {
+        difference() {
+            cube([doorHeight, doorWidth, doorThick]);
+            #translate([doorHeight - doorDiam/2 - 2, doorWidth/2, 0])
+                cylinder(d=doorDiam, z=3, $fn=80);
+        }
         cube([2, doorWidth, 1 + doorThick]);
     }
 }
 module join(distance) {
-    doorDiam = 7;
     difference() {
         union() {
             shutter();
@@ -264,7 +319,7 @@ module join(distance) {
                 mirror([0, 1, 0])
                     shutter();
         }
-        translate([0, -wall - distance - 1, doorDiam + 1])
+        translate([0, -wall - distance - 1, doorDiam/2 + wall + 0.5])
             rotate([-90, 0, 0])
                 cylinder(d=doorDiam, h = 2 + distance + 2*wall, $fn=100);
     }
