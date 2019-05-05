@@ -29,10 +29,9 @@ wetModule();
 simpleModule();
 harvestModule();
 handle(8);
-*/
-
 veryWetModule();
 
+*/
 
 module all() {
     simpleModule();
@@ -302,7 +301,7 @@ module closableJoin(distance) {
     translate([0, 30, 0]) {
         difference() {
             cube([doorHeight, doorWidth, doorThick]);
-            #translate([doorHeight - doorDiam/2 - 2, doorWidth/2, 0])
+            translate([doorHeight - doorDiam/2 - 2, doorWidth/2, 0])
                 cylinder(d=doorDiam, z=3, $fn=80);
         }
         cube([2, doorWidth, 1 + doorThick]);
@@ -347,4 +346,40 @@ module corner(side, height, zOffset, holeDiam = 3) {
         translate([0, -side, 0])
         cube([side, side, height]);
     }
+}
+
+adapter();
+module adapter() {
+    alienMaxWidth = 24.5;
+    alienMinWidth = 21;
+    alienHeight = z; // 19.5;
+    alienThick = 2.6;
+    difference() {
+
+        union() {
+            difference() {
+                closableJoin(2);
+                translate([-30, -9.5, 0]) {
+                    cube([60, 5, z]);
+                }
+                translate([16.5, 35, -6])
+                    rotate([0, 0, 30])
+                        cylinder(d=8, h=20, $fn=6);
+            }
+            translate([-alienMaxWidth/2, -4.5, 0])
+            difference() {
+                cube([alienMaxWidth, alienThick, alienHeight]);
+                rotate([0, 0, 45])
+                    cube([5, 5, alienHeight + 1]);
+
+                translate([alienMaxWidth, 0, 0])
+                    rotate([0, 0, 45])
+                        cube([5, 5, alienHeight + 1]);
+            }
+        }
+        translate([0, -10, 6])
+            rotate([-80, 0, 0])
+               cylinder(d=9, h=20, $fn=6);
+    }
+
 }
