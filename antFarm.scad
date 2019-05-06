@@ -29,9 +29,10 @@ wetModule();
 simpleModule();
 harvestModule();
 handle(8);
-veryWetModule();
+adapter();
 
 */
+veryWetModule();
 
 module all() {
     simpleModule();
@@ -187,7 +188,7 @@ module antModule(type) {
                     translate([wall/2 + 0.5, wall/2 + wetWallOffset - 0.9, 0])
                         corner(5, z-coverZ, 5, 2);
                 } else if(type == 3) {
-                    translate([wall/2 + 0.5, wall/2 + veryWetWallOffset - 0.9, 0])
+                    translate([wall/2 + 0.5, wall/2 + veryWetWallOffset - 0.4, 0])
                         corner(5, z-coverZ, 5, 2);
                 } else {
                     translate([wall/2, wall/2, 0])
@@ -348,7 +349,6 @@ module corner(side, height, zOffset, holeDiam = 3) {
     }
 }
 
-adapter();
 module adapter() {
     alienMaxWidth = 24.5;
     alienMinWidth = 21;
