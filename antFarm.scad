@@ -13,26 +13,22 @@ openingSide = 12;
 openingWidth = sqrt(2*openingSide*openingSide);
 
 /*
+closableJoin(0.5, 1);
 translate([0, -15, 0])
-join(0.5);
-
 closableJoin(0.5);
-join(1);
+join(0.5);
 translate([0, 20, 0])
 translate([0, 40, 0])
 shutter();
-
-
 all();
 openBar();
 wetModule();
 simpleModule();
 harvestModule();
 handle(8);
-adapter();
 
-*/
 veryWetModule();
+*/
 
 module all() {
     simpleModule();
@@ -242,6 +238,7 @@ module holeRow() {
         }
     }
 }
+
 module opening() {
     difference() {
 
@@ -285,10 +282,13 @@ module shutter() {
 doorWidth = shutterSide - 2;
 doorThick = 0.5;
 doorHeight = z + 2;
-doorDiam = 7;
-module closableJoin(distance) {
+doorRoundOpeningDiam = 7;
+doorSquareOpeningWidth = doorWidth - 1.8 ;
+doorSquareOpeningHeight = z - 4 - wall ;
+
+module closableJoin(distance, type=0) {
     difference() {
-        join(distance);
+        join(distance, type);
         translate([-doorWidth/2 - tol, -(doorThick + distance)/2, 2]) {
             cube([doorWidth + 3*tol, doorThick + 3*tol, z]);
         }
@@ -302,13 +302,24 @@ module closableJoin(distance) {
     translate([0, 30, 0]) {
         difference() {
             cube([doorHeight, doorWidth, doorThick]);
-            translate([doorHeight - doorDiam/2 - 2, doorWidth/2, 0])
-                cylinder(d=doorDiam, z=3, $fn=80);
+            if (type == 0) {
+                translate([doorHeight - doorRoundOpeningDiam/2 - 2, doorWidth/2, 0])
+                    roundDoorOpening(4);
+            } else {
+                translate([doorHeight - doorSquareOpeningHeight - 2,
+                    doorSquareOpeningWidth + (doorWidth - doorSquareOpeningWidth)/2,
+                    2])
+                    rotate([-90, 0, -90])
+                        squareDoorOpening(4);
+            }
         }
         cube([2, doorWidth, 1 + doorThick]);
     }
 }
-module join(distance) {
+
+module join(distance, type=0) {
+    doorSquareOpeningThick = 3 + distance + 2*wall;
+
     difference() {
         union() {
             shutter();
@@ -319,10 +330,25 @@ module join(distance) {
                 mirror([0, 1, 0])
                     shutter();
         }
-        translate([0, -wall - distance - 1, doorDiam/2 + wall + 0.5])
-            rotate([-90, 0, 0])
-                cylinder(d=doorDiam, h = 2 + distance + 2*wall, $fn=100);
+        // Type 0: round opening
+        if(type == 0) {
+            translate([0, -wall - distance - 1, doorRoundOpeningDiam/2 + wall + 0.5])
+                rotate([-90, 0, 0])
+                    roundDoorOpening(distance);
+        } else {
+            translate([-doorSquareOpeningWidth/2, -doorSquareOpeningThick/2, wall])
+                squareDoorOpening(doorSquareOpeningThick);
+        }
     }
+}
+
+module roundDoorOpening(distance) {
+    cylinder(d=doorRoundOpeningDiam, h = 2 + distance + 2*wall, $fn=100);
+}
+
+module squareDoorOpening(thickNess) {
+    cube([doorSquareOpeningWidth, thickNess, doorSquareOpeningHeight]);
+
 }
 
 module corner(side, height, zOffset, holeDiam = 3) {
@@ -349,37 +375,3 @@ module corner(side, height, zOffset, holeDiam = 3) {
     }
 }
 
-module adapter() {
-    alienMaxWidth = 24.5;
-    alienMinWidth = 21;
-    alienHeight = z; // 19.5;
-    alienThick = 2.6;
-    difference() {
-
-        union() {
-            difference() {
-                closableJoin(2);
-                translate([-30, -9.5, 0]) {
-                    cube([60, 5, z]);
-                }
-                translate([16.5, 35, -6])
-                    rotate([0, 0, 30])
-                        cylinder(d=8, h=20, $fn=6);
-            }
-            translate([-alienMaxWidth/2, -4.5, 0])
-            difference() {
-                cube([alienMaxWidth, alienThick, alienHeight]);
-                rotate([0, 0, 45])
-                    cube([5, 5, alienHeight + 1]);
-
-                translate([alienMaxWidth, 0, 0])
-                    rotate([0, 0, 45])
-                        cube([5, 5, alienHeight + 1]);
-            }
-        }
-        translate([0, -10, 6])
-            rotate([-80, 0, 0])
-               cylinder(d=9, h=20, $fn=6);
-    }
-
-}
