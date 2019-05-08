@@ -13,11 +13,13 @@ Several modules are available:
 - dry module with cells
 - harvest module to set their food (seeds)
 - water dispenser, in case humidity is not sufficient, ants need to drink
+- adapters to connect to other modules
 
-Modules can be connected with doors, optionnally closeable, and their unused connection pods will be closed by shutters.
+Modules can be connected with doors, optionally closeable, and their unused connection pods will be closed by shutters.
 
 My friend who is an ant fanatic bought one on Ebay, but the water dispenser is not well designed, and several ants drowned. He asked for my water dispenser so I designed a connector to connect to his modules.
 
-All this is shown on this picture:
-
 <img width="500px" src="https://github.com/reivaxy/antFarm/blob/master/resources/antFarm.jpg?raw=true"/>
+
+
+<img width="500px" src="https://github.com/reivaxy/antFarm/blob/master/resources/adapters.jpg?raw=true"/>
